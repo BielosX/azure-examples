@@ -8,25 +8,24 @@ function check_resource_group() {
 }
 
 function get_storage_account_name() {
-  id=$(az deployment group show \
+  storage_account_name=$(az deployment group show \
     --name TerraformBackend \
     --resource-group "$1" \
-    | jq -r '.properties.outputResources | map(.id) | .[] | select(test("storageAccounts/[a-z0-9]+$"))')
-  IFS='/' read -r -a elements <<< "$id"
-  length=${#elements[@]}
-  last=$((length-1))
-  storage_account_name=${elements[last]}
+    | jq -r '.properties.outputs.storageAccountName.value')
 }
 
-function deploy() {
+function deploy_backend() {
   check_resource_group "$1"
+  ip=$(curl -s ifconfig.me/ip)
+  echo "My IP: $ip"
   az deployment group create \
     --name TerraformBackend \
     --resource-group "$1" \
-    --template-file terraform_backend.bicep
+    --template-file terraform_backend.bicep \
+    --parameters ip="$ip"
 }
 
-function destroy() {
+function destroy_backend() {
   check_resource_group "$1"
   az deployment group delete \
     --name TerraformBackend \
@@ -44,8 +43,16 @@ function static_website() {
   popd || exit
 }
 
+function static_website_destroy() {
+  check_resource_group "$1"
+  pushd static-website || exit
+  terraform destroy -auto-approve -var "resource-group=$1"
+  popd || exit
+}
+
 case "$1" in
-  "deploy") deploy "$2" ;;
-  "destroy") destroy "$2" ;;
+  "deploy-backend") deploy_backend "$2" ;;
+  "destroy-backend") destroy_backend "$2" ;;
   "static-website") static_website "$2" ;;
+  "static-website-destroy") static_website_destroy "$2" ;;
 esac

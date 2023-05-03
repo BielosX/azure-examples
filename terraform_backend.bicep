@@ -1,4 +1,5 @@
 param location string = resourceGroup().location
+param ip string
 
 var uniqueStorageName = 'storage${uniqueString(resourceGroup().id)}'
 
@@ -11,7 +12,16 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
   properties: {
     allowBlobPublicAccess: true
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      defaultAction: 'Deny'
+      ipRules: [
+        {
+          action: 'Allow'
+          value: ip
+        }
+      ]
+    }
   }
   tags: {
     name: 'terraform-backend-sa'
@@ -30,3 +40,5 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
     publicAccess: 'Blob'
   }
 }
+
+output storageAccountName string = storageAccount.name

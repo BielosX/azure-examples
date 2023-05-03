@@ -3,6 +3,20 @@ terraform {
     container_name = "tfstate"
     key = "static-website.tfstate"
   }
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "3.54.0"
+    }
+    random = {
+      source = "hashicorp/random"
+      version = "3.5.1"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
 }
 
 data "azurerm_resource_group" "resource-group" {
@@ -10,7 +24,7 @@ data "azurerm_resource_group" "resource-group" {
 }
 
 resource "random_id" "storage-account-random" {
-  byte_length = 17
+  byte_length = 5
 }
 
 resource "azurerm_storage_account" "storage-account" {
