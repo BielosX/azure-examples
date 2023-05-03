@@ -10,7 +10,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: 'Standard_GRS'
   }
   properties: {
-    allowBlobPublicAccess: false
+    allowBlobPublicAccess: true
     publicNetworkAccess: 'Disabled'
   }
   tags: {
@@ -27,6 +27,6 @@ resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@20
   name: 'tfstate'
   parent: blobService
   properties: {
-    publicAccess: 'None'
+    publicAccess: 'Blob'
   }
 }
