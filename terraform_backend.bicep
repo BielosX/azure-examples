@@ -14,6 +14,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     publicNetworkAccess: 'Disabled'
   }
   tags: {
-    purpose: 'TerraformBackend'
+    name: 'terraform-backend-sa'
+  }
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  name: 'default'
+  parent: storageAccount
+}
+
+resource container 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  name: 'tfstate'
+  parent: blobService
+  properties: {
+    publicAccess: 'None'
   }
 }
