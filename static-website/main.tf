@@ -34,9 +34,43 @@ resource "azurerm_storage_account" "storage-account" {
   name = "website${random_id.storage-account-random.dec}"
   resource_group_name = data.azurerm_resource_group.resource-group.name
   account_kind = "StorageV2"
-  public_network_access_enabled = false
+  public_network_access_enabled = true
+  network_rules {
+    default_action = "Deny"
+    ip_rules = [var.allowed-ip]
+  }
   static_website {
     index_document = "index.html"
     error_404_document = "error.html"
   }
+}
+
+resource "azurerm_storage_blob" "index" {
+  name = "index.html"
+  storage_account_name = azurerm_storage_account.storage-account.name
+  storage_container_name = "$web"
+  type = "Block"
+  content_type = "text/html"
+  source_content = <<-EOT
+  <html>
+    <body>
+      <h1>Hello from Storage Account</h1>
+    </body>
+  </html>
+  EOT
+}
+
+resource "azurerm_storage_blob" "error" {
+  name = "error.html"
+  storage_account_name = azurerm_storage_account.storage-account.name
+  storage_container_name = "$web"
+  type = "Block"
+  content_type = "text/html"
+  source_content = <<-EOT
+  <html>
+    <body>
+      <h1>Something went wrong</h1>
+    </body>
+  </html>
+  EOT
 }

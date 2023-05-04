@@ -36,17 +36,19 @@ function static_website() {
   check_resource_group "$1"
   get_storage_account_name "$1"
   pushd static-website || exit
+  ip=$(curl -s ifconfig.me/ip)
   terraform init \
     -backend-config="resource_group_name=$1" \
     -backend-config="storage_account_name=$storage_account_name" || exit
-  terraform apply -auto-approve -var "resource-group=$1"
+  terraform apply -auto-approve -var "resource-group=$1" -var "allowed-ip=$ip"
   popd || exit
 }
 
 function static_website_destroy() {
   check_resource_group "$1"
   pushd static-website || exit
-  terraform destroy -auto-approve -var "resource-group=$1"
+  ip=$(curl -s ifconfig.me/ip)
+  terraform destroy -auto-approve -var "resource-group=$1" -var "allowed-ip=$ip"
   popd || exit
 }
 
