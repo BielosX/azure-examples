@@ -53,6 +53,13 @@ resource "random_string" "function-suffix" {
   upper = false
 }
 
+resource "azurerm_application_insights" "app-insights" {
+  name = "app-insights"
+  application_type = "web"
+  location = data.azurerm_resource_group.resource-group.location
+  resource_group_name = data.azurerm_resource_group.resource-group.name
+}
+
 resource "azurerm_windows_function_app" "http-trigger-function-app" {
   name = "function${random_string.function-suffix.result}"
   location = data.azurerm_resource_group.resource-group.location
@@ -65,5 +72,35 @@ resource "azurerm_windows_function_app" "http-trigger-function-app" {
     WEBSITE_RUN_FROM_PACKAGE: 1
   }
 
-  site_config {}
+  site_config {
+    application_insights_connection_string = azurerm_application_insights.app-insights.connection_string
+    application_insights_key = azurerm_application_insights.app-insights.instrumentation_key
+  }
+}
+resource "random_string" "logs-sa-suffix" {
+  length = 16
+  special = false
+  numeric = true
+  upper = false
+}
+
+resource "azurerm_storage_account" "logs-sa" {
+  name = "logs${random_string.logs-sa-suffix.result}"
+  resource_group_name= data.azurerm_resource_group.resource-group.name
+  location = data.azurerm_resource_group.resource-group.location
+  account_replication_type = "LRS"
+  account_tier = "Standard"
+}
+
+resource "azurerm_monitor_diagnostic_setting" "function-logs" {
+  name = "function-logs"
+  target_resource_id = azurerm_windows_function_app.http-trigger-function-app.id
+  storage_account_id = azurerm_storage_account.logs-sa.id
+
+  enabled_log {
+    category = "FunctionAppLogs"
+    retention_policy {
+      enabled = false
+    }
+  }
 }
