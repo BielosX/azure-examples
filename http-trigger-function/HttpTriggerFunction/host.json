@@ -6,11 +6,13 @@
         }
     },
     "logging": {
-        "applicationInsights": {
-            "samplingSettings": {
-                "isEnabled": true,
-                "excludedTypes": "Request"
-            }
+        "fileLoggingMode": "always",
+        "logLevel": {
+          "default": "Debug",
+          "Host.Results": "Debug",
+          "Function": "Debug",
+          "Function.HttpTriggerFunction.User": "Debug",
+          "Host.Aggregator": "Trace"
         }
     }
 }

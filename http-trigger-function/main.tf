@@ -53,11 +53,18 @@ resource "random_string" "function-suffix" {
   upper = false
 }
 
+resource "azurerm_log_analytics_workspace" "workspace" {
+  name = "function-workspace"
+  location = data.azurerm_resource_group.resource-group.location
+  resource_group_name = data.azurerm_resource_group.resource-group.name
+}
+
 resource "azurerm_application_insights" "app-insights" {
   name = "app-insights"
   application_type = "web"
   location = data.azurerm_resource_group.resource-group.location
   resource_group_name = data.azurerm_resource_group.resource-group.name
+  workspace_id = azurerm_log_analytics_workspace.workspace.id
 }
 
 resource "azurerm_windows_function_app" "http-trigger-function-app" {
@@ -77,25 +84,12 @@ resource "azurerm_windows_function_app" "http-trigger-function-app" {
     application_insights_key = azurerm_application_insights.app-insights.instrumentation_key
   }
 }
-resource "random_string" "logs-sa-suffix" {
-  length = 16
-  special = false
-  numeric = true
-  upper = false
-}
-
-resource "azurerm_storage_account" "logs-sa" {
-  name = "logs${random_string.logs-sa-suffix.result}"
-  resource_group_name= data.azurerm_resource_group.resource-group.name
-  location = data.azurerm_resource_group.resource-group.location
-  account_replication_type = "LRS"
-  account_tier = "Standard"
-}
 
 resource "azurerm_monitor_diagnostic_setting" "function-logs" {
   name = "function-logs"
   target_resource_id = azurerm_windows_function_app.http-trigger-function-app.id
-  storage_account_id = azurerm_storage_account.logs-sa.id
+  log_analytics_destination_type = "Dedicated"
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.workspace.id
 
   enabled_log {
     category = "FunctionAppLogs"

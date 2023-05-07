@@ -11,7 +11,7 @@ module HttpTriggerFunction =
     [<FunctionName("HttpTriggerFunction")>]
     let run ([<HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)>]req: HttpRequest) (log: ILogger) =
         async {
-            log.LogInformation("Processing HTTP request")
+            log.LogInformation("Hello from HttpTriggerFunction. Processing HTTP request.")
             let resultBody = Map [("Status", "OK"); ("Message", "Hello")]
             let result = JsonResult(resultBody)
             result.StatusCode <- 200
