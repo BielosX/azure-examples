@@ -4,7 +4,7 @@ param ip string
 var uniqueStorageName = 'storage${uniqueString(resourceGroup().id)}'
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  kind: 'Storage'
+  kind: 'StorageV2'
   location: location
   name: uniqueStorageName
   sku: {

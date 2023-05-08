@@ -36,6 +36,7 @@ resource "azurerm_storage_account" "function-sa" {
   location = data.azurerm_resource_group.resource-group.location
   account_replication_type = "LRS"
   account_tier = "Standard"
+  account_kind = "StorageV2"
 }
 
 resource "azurerm_service_plan" "service-plan" {
