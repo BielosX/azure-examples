@@ -73,8 +73,10 @@ resource "azurerm_windows_function_app" "blob-upload-trigger-function-app" {
   }
   zip_deploy_file = "${path.module}/CalculateSHA256/bin/Debug/net6.0/function.zip"
 
-  site_config {}
-
+  site_config {
+    application_insights_connection_string = azurerm_application_insights.app-insights.connection_string
+    application_insights_key = azurerm_application_insights.app-insights.instrumentation_key
+  }
 }
 
 resource "random_string" "demo-storage-account-suffix" {
@@ -102,6 +104,14 @@ resource "azurerm_log_analytics_workspace" "function-workspace" {
   name = "blob-upload-function-workspace"
   location = local.location
   resource_group_name = local.resource-group-name
+}
+
+resource "azurerm_application_insights" "app-insights" {
+  name = "app-insights"
+  application_type = "web"
+  location = data.azurerm_resource_group.resource-group.location
+  resource_group_name = data.azurerm_resource_group.resource-group.name
+  workspace_id = azurerm_log_analytics_workspace.function-workspace.id
 }
 
 resource "azurerm_monitor_diagnostic_setting" "function-logs" {
