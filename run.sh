@@ -68,7 +68,7 @@ function http_trigger_function() {
 
   pushd HttpTriggerFunction || exit
   rm -rf bin
-  dotnet build
+  dotnet build || exit
 
   pushd bin/Debug/net6.0 || exit
   zip -r function.zip -- *
@@ -87,6 +87,30 @@ function http_trigger_function_destroy() {
   popd || exit
 }
 
+function blob_upload_trigger_function() {
+  check_resource_group "$1"
+  pushd blob-upload-trigger-function || exit
+
+  pushd CalculateSHA256 || exit
+  rm -rf bin
+  dotnet build || exit
+  pushd bin/Debug/net6.0 || exit
+  zip -r function.zip -- *
+  popd || exit
+  popd || exit
+
+  init_backend "$1"
+  terraform apply -auto-approve -var "resource-group=$1"
+  popd || exit
+}
+
+function blob_upload_trigger_function_destroy() {
+  check_resource_group "$1"
+  pushd blob-upload-trigger-function || exit
+  terraform destroy -auto-approve -var "resource-group=$1"
+  popd || exit
+}
+
 case "$1" in
   "backend") backend "$2" ;;
   "backend-destroy") backend_destroy "$2" ;;
@@ -94,4 +118,6 @@ case "$1" in
   "static-website-destroy") static_website_destroy "$2" ;;
   "http-trigger-function") http_trigger_function "$2" ;;
   "http-trigger-function-destroy") http_trigger_function_destroy "$2" ;;
+  "blob-upload-trigger-function") blob_upload_trigger_function "$2" ;;
+  "blob-upload-trigger-function-destroy") blob_upload_trigger_function_destroy "$2" ;;
 esac

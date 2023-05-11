@@ -1,0 +1,12 @@
+{
+    "disabled": false,
+    "bindings": [
+        {
+            "name": "myBlob",
+            "type": "blobTrigger",
+            "direction": "in",
+            "path": "demo-container/{name}",
+            "connection": "StorageConnectionString"
+        }
+    ]
+}

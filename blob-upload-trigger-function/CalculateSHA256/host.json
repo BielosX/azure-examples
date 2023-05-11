@@ -1,0 +1,13 @@
+{
+    "version": "2.0",
+    "logging": {
+        "fileLoggingMode": "always",
+        "logLevel": {
+          "default": "Debug",
+          "Host.Results": "Debug",
+          "Function": "Debug",
+          "Function.CalculateSHA256.User": "Debug",
+          "Host.Aggregator": "Trace"
+        }
+    }
+}
