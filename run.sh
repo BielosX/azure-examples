@@ -64,8 +64,7 @@ function http_trigger_function() {
   init_backend "$1"
   terraform apply -auto-approve -var "resource-group=$1"
 
-  name=$(terraform show -json \
-    | jq -r '.values.root_module.resources[] | select(.address == "azurerm_windows_function_app.http-trigger-function-app") | .values.name')
+  name=$(terraform output -json | jq -r '."function-name".value')
 
   pushd HttpTriggerFunction || exit
   rm -rf bin
