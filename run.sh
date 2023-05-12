@@ -12,6 +12,7 @@ function get_storage_account_name() {
     --name TerraformBackend \
     --resource-group "$1" \
     | jq -r '.properties.outputs.storageAccountName.value')
+  echo "Backend storage account: $storage_account_name"
 }
 
 function backend() {

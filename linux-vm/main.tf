@@ -125,6 +125,7 @@ resource "azurerm_linux_virtual_machine" "demo-vm" {
   disable_password_authentication = false
   admin_username = "adminuser"
   admin_password = random_password.admin-password.result
+  custom_data = base64encode(file("${path.module}/init.sh"))
 
   os_disk {
     caching = "None"
@@ -134,7 +135,7 @@ resource "azurerm_linux_virtual_machine" "demo-vm" {
   source_image_reference {
     offer = "CentOS"
     publisher = "OpenLogic"
-    sku = "7.5"
+    sku = "8_5-gen2"
     version = "latest"
   }
 }
