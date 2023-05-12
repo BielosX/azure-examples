@@ -111,6 +111,32 @@ function blob_upload_trigger_function_destroy() {
   popd || exit
 }
 
+function linux_vm() {
+  check_resource_group "$1"
+  pushd linux-vm || exit
+  init_backend "$1"
+  ip=$(curl -s ifconfig.me/ip)
+  terraform apply -auto-approve -var "resource-group=$1" -var "source-ip=$ip"
+  popd || exit
+}
+
+function linux_vm_destroy() {
+  check_resource_group "$1"
+  pushd linux-vm || exit
+  ip=$(curl -s ifconfig.me/ip)
+  terraform destroy -auto-approve -var "resource-group=$1" -var "source-ip=$ip"
+  popd || exit
+}
+
+function linux_vm_get_credentials() {
+  pushd linux-vm || exit
+  out=$(terraform output -json)
+  user=$(jq -r '."admin-user".value' <<< "$out")
+  password=$(jq -r '."admin-password".value' <<< "$out")
+  echo "Username: $user, password: $password"
+  popd || exit
+}
+
 case "$1" in
   "backend") backend "$2" ;;
   "backend-destroy") backend_destroy "$2" ;;
@@ -120,4 +146,7 @@ case "$1" in
   "http-trigger-function-destroy") http_trigger_function_destroy "$2" ;;
   "blob-upload-trigger-function") blob_upload_trigger_function "$2" ;;
   "blob-upload-trigger-function-destroy") blob_upload_trigger_function_destroy "$2" ;;
+  "linux-vm" ) linux_vm "$2" ;;
+  "linux-vm-destroy") linux_vm_destroy "$2" ;;
+  "linux-vm-credentials") linux_vm_get_credentials ;;
 esac
