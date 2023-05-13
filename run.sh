@@ -28,6 +28,12 @@ function backend() {
 
 function backend_destroy() {
   check_resource_group "$1"
+  sa_name=$(az deployment group show \
+    --resource-group "$1" \
+    --name TerraformBackend \
+    | jq -r '.properties.outputs.storageAccountName.value')
+  az storage account delete \
+    --yes --name "$sa_name" --resource-group "$1"
   az deployment group delete \
     --name TerraformBackend \
     --resource-group "$1"
